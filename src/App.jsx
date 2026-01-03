@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Trophy, Timer, User, Skull, Zap, ChevronRight, Dice5, ShieldAlert, LogOut } from 'lucide-react';
+// Import your custom API functions
+import { getRandomQuestion, saveUserScore } from './api'; 
+import { Trophy, Timer, User, Skull, Zap, Dice5, ShieldAlert, LogOut } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
 const HUDDLES = [8, 12, 19, 25, 33, 38, 47, 50, 55, 62, 70, 75, 82, 88, 92, 95, 98];
-// Replace the hardcoded line with this:
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'snake-frontend-h68j.vercel.app';
+
 export default function App() {
-  // PERSISTENCE: Initialize state from localStorage if available
   const [user, setUser] = useState(() => localStorage.getItem('pq_user') || "");
   const [pos, setPos] = useState(() => Number(localStorage.getItem('pq_pos')) || 1);
   const [timer, setTimer] = useState(() => Number(localStorage.getItem('pq_timer')) || 0);
@@ -18,9 +17,8 @@ export default function App() {
   const [isGameOver, setIsGameOver] = useState(false);
   const [lastRoll, setLastRoll] = useState(0);
   const [isRolling, setIsRolling] = useState(false);
-  const [tempName, setTempName] = useState(""); // For the login input
+  const [tempName, setTempName] = useState("");
 
-  // Save progress to localStorage whenever key values change
   useEffect(() => {
     if (user) {
       localStorage.setItem('pq_user', user);
@@ -66,8 +64,9 @@ export default function App() {
         finishGame();
       } else if (HUDDLES.includes(nextPos)) {
         try {
-          const res = await axios.get(`${BASE_URL}/question`);
-          setChallenge({ ...res.data, next: nextPos });
+          // --- FIXED: Using getRandomQuestion from api.js ---
+          const data = await getRandomQuestion();
+          setChallenge({ ...data, next: nextPos });
           toast('⚠️ SNAKE ENCOUNTER!', { icon: '🐍', style: { background: '#1e293b', color: '#fff' } });
         } catch (e) {
           setPos(nextPos);
@@ -96,9 +95,10 @@ export default function App() {
     setPos(100);
     setIsGameOver(true);
     try {
-      await axios.post(`${BASE_URL}/save-score`, { username: user, timeTaken: timer });
+      // --- FIXED: Using saveUserScore from api.js ---
+      await saveUserScore({ username: user, timeTaken: timer });
       toast.success("QUEST COMPLETE!", { icon: '🏆', duration: 10000 });
-      localStorage.clear(); // Clear storage on win so they can start fresh
+      localStorage.clear();
     } catch (e) { console.error("Score not saved"); }
   };
 
@@ -115,7 +115,6 @@ export default function App() {
     return board;
   };
 
-  // 1. IMPROVED LOGIN PAGE
   if (!user) return (
     <div className="h-screen bg-slate-950 flex flex-col items-center justify-center p-6">
       <Toaster position="top-center" />
@@ -149,7 +148,6 @@ export default function App() {
     <div className="min-h-screen bg-slate-950 text-white font-mono flex flex-col items-center py-6 px-4 overflow-x-hidden">
       <Toaster position="top-right" />
       
-      {/* 2. PERSISTENT HUD */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3 w-full max-w-5xl mb-6">
         <div className="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center gap-3">
           <User className="text-blue-500" size={18} />
@@ -170,7 +168,6 @@ export default function App() {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8 items-start w-full justify-center max-w-7xl">
-        {/* Responsive Board */}
         <div className="bg-slate-900 p-2 md:p-4 rounded-3xl border-4 border-slate-800 shadow-2xl mx-auto">
           {renderBoard().map((row, i) => (
             <div key={i} className="flex">
@@ -194,7 +191,6 @@ export default function App() {
           ))}
         </div>
 
-        {/* 3. IMPROVED SIDEBAR CONTROLS */}
         <div className="flex flex-col gap-4 w-full lg:w-72">
           <div className="bg-slate-900 border-2 border-slate-800 p-8 rounded-3xl flex flex-col items-center justify-center shadow-inner relative overflow-hidden">
             <div className="absolute top-2 left-2 text-[8px] text-slate-700">DICE_MODULE_V2</div>
@@ -220,7 +216,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* Challenge Modal */}
       {challenge && (
         <div className="fixed inset-0 bg-slate-950/98 backdrop-blur-md flex items-center justify-center p-4 z-[100]">
           <div className="bg-slate-900 border-2 border-red-600 w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl">
