@@ -5,7 +5,7 @@ import toast, { Toaster } from 'react-hot-toast';
 
 const HUDDLES = [8, 12, 19, 25, 33, 38, 47, 50, 55, 62, 70, 75, 82, 88, 92, 95, 98];
 // Replace the hardcoded line with this:
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'snake-frontend-h68j.vercel.app';
 export default function App() {
   // PERSISTENCE: Initialize state from localStorage if available
   const [user, setUser] = useState(() => localStorage.getItem('pq_user') || "");
