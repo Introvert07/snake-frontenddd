@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-neutral-900 text-white overflow-hidden;
+}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
